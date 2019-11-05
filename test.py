@@ -17,22 +17,23 @@ def test(cfg,
          conf_thres=0.001,
          nms_thres=0.5,
          save_json=False,
-         model=None,
-         arc='default'):
+         model=None, ):
     # Initialize/load model and set device
     if model is None:
         device = torch_utils.select_device(opt.device)
         verbose = True
 
         # Initialize model
-        model = Darknet(cfg, img_size, arc).to(device)
+        model = Darknet(cfg, img_size).to(device)
 
         # Load weights
         attempt_download(weights)
         if weights.endswith('.pt'):  # pytorch format
             states = torch.load(weights, map_location=device)
             model.load_state_dict(states['model'])
-            model.arc = states['arc']
+            arc = states['arc']
+            for yolo_idx in model.yolo_layers:
+                model.module_list[yolo_idx].arc = arc
         else:  # darknet format
             _ = load_darknet_weights(model, weights)
 
