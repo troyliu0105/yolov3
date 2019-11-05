@@ -30,7 +30,9 @@ def test(cfg,
         # Load weights
         attempt_download(weights)
         if weights.endswith('.pt'):  # pytorch format
-            model.load_state_dict(torch.load(weights, map_location=device)['model'])
+            states = torch.load(weights, map_location=device)
+            model.load_state_dict(states['model'])
+            model.arc = states['arc']
         else:  # darknet format
             _ = load_darknet_weights(model, weights)
 
@@ -207,7 +209,6 @@ if __name__ == '__main__':
     parser.add_argument('--nms-thres', type=float, default=0.5, help='iou threshold for non-maximum suppression')
     parser.add_argument('--save-json', action='store_true', help='save a cocoapi-compatible JSON results file')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')
-    parser.add_argument('--arc', type=str, default='uCE', help='yolo architecture')  # defaultpw, uCE, uBCE
     opt = parser.parse_args()
     print(opt)
 
@@ -220,6 +221,4 @@ if __name__ == '__main__':
              opt.iou_thres,
              opt.conf_thres,
              opt.nms_thres,
-             opt.save_json,
-             model=None,
-             arc=opt.arc)
+             opt.save_json)
