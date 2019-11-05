@@ -17,14 +17,15 @@ def test(cfg,
          conf_thres=0.001,
          nms_thres=0.5,
          save_json=False,
-         model=None):
+         model=None,
+         arc='default'):
     # Initialize/load model and set device
     if model is None:
         device = torch_utils.select_device(opt.device)
         verbose = True
 
         # Initialize model
-        model = Darknet(cfg, img_size).to(device)
+        model = Darknet(cfg, img_size, arc).to(device)
 
         # Load weights
         attempt_download(weights)
@@ -33,8 +34,8 @@ def test(cfg,
         else:  # darknet format
             _ = load_darknet_weights(model, weights)
 
-        if torch.cuda.device_count() > 1:
-            model = nn.DataParallel(model)
+        # if torch.cuda.device_count() > 1:
+        #     model = nn.DataParallel(model)
     else:
         device = next(model.parameters()).device  # get model device
         verbose = False
@@ -206,6 +207,7 @@ if __name__ == '__main__':
     parser.add_argument('--nms-thres', type=float, default=0.5, help='iou threshold for non-maximum suppression')
     parser.add_argument('--save-json', action='store_true', help='save a cocoapi-compatible JSON results file')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')
+    parser.add_argument('--arc', type=str, default='uCE', help='yolo architecture')  # defaultpw, uCE, uBCE
     opt = parser.parse_args()
     print(opt)
 
@@ -218,4 +220,6 @@ if __name__ == '__main__':
              opt.iou_thres,
              opt.conf_thres,
              opt.nms_thres,
-             opt.save_json)
+             opt.save_json,
+             model=None,
+             arc=opt.arc)
