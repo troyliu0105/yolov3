@@ -410,7 +410,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         img_path = self.img_files[index]
         label_path = self.label_files[index]
 
-        mosaic = True and self.augment  # load 4 images at a time into a mosaic (only during training)
+        mosaic = False and self.augment  # load 4 images at a time into a mosaic (only during training)
         if mosaic:
             # Load mosaic
             img, labels = load_mosaic(self, index)
@@ -471,7 +471,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
 
         if self.augment:
             # random left-right flip
-            lr_flip = True
+            lr_flip = False
             if lr_flip and random.random() < 0.5:
                 img = np.fliplr(img)
                 if nL:
