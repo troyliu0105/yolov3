@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import torch.distributed as dist
 import torch.optim as optim
@@ -215,7 +216,8 @@ def train():
     print('Starting %s for %g epochs...' % ('prebias' if opt.prebias else 'training', epochs))
     for epoch in range(start_epoch, epochs):  # epoch ------------------------------------------------------------------
         model.train()
-        print(('\n' + '%10s' * 8) % ('Epoch', 'gpu_mem', 'GIoU', 'obj', 'cls', 'total', 'targets', 'img_size'))
+        print(('\n' + '%10s' * 9) % (
+        'Epoch', 'gpu_mem', 'GIoU', 'obj', 'cls', 'total', 'targets', 'img_size', 'time(ms)'))
 
         # Freeze backbone at epoch 0, unfreeze at epoch 1 (optional)
         freeze_backbone = False
@@ -265,7 +267,9 @@ def train():
             #         x['weight_decay'] = hyp['weight_decay'] * g
 
             # Run model
+            start = time.time()
             pred = model(imgs)
+            duration = (time.time() - start) / imgs.size(0) * 1000
 
             # Compute loss
             loss, loss_items = compute_loss(pred, targets, model)
@@ -291,8 +295,8 @@ def train():
             # Print batch results
             mloss = (mloss * i + loss_items) / (i + 1)  # update mean losses
             mem = torch.cuda.memory_cached() / 1E9 if torch.cuda.is_available() else 0  # (GB)
-            s = ('%10s' * 2 + '%10.3g' * 6) % (
-                '%g/%g' % (epoch, epochs - 1), '%.3gG' % mem, *mloss, len(targets), img_size)
+            s = ('%10s' * 2 + '%10.3g' * 7) % (
+                '%g/%g' % (epoch, epochs - 1), '%.3gG' % mem, *mloss, len(targets), img_size, duration)
             pbar.set_description(s)
 
             # end batch ------------------------------------------------------------------------------------------------
