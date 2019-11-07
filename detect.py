@@ -78,7 +78,9 @@ def detect(save_txt=False, save_img=False):
         img = torch.from_numpy(img).to(device)
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
+        start = time.time()
         pred = model(img)[0]
+        duration = (time.time() - start) * 1000
 
         if opt.half:
             pred = pred.float()
@@ -118,7 +120,7 @@ def detect(save_txt=False, save_img=False):
                         label = '%s %.2f' % (classes[int(cls)], conf)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)])
 
-            print('%sDone. (%.3fs)' % (s, time.time() - t))
+            print('%sDone. (%.3fs, forward: %.2fms)' % (s, time.time() - t, duration))
 
             # Stream results
             if view_img:
@@ -152,7 +154,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, default='cfg/yolov3-tiny-light.cfg', help='cfg file path')
     parser.add_argument('--data', type=str, default='data/light.data', help='coco.data file path')
-    parser.add_argument('--weights', type=str, default='weights/best.pt', help='path to weights file')
+    parser.add_argument('--weights', type=str, default='weights/best_uFCE0.pt', help='path to weights file')
     parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
