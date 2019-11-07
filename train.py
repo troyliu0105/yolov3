@@ -16,11 +16,6 @@ try:  # Mixed precision training https://github.com/NVIDIA/apex
 except ImportError:
     mixed_precision = False  # not installed
 
-wdir = 'weights' + os.sep  # weights dir
-last = wdir + 'last.pt'
-best = wdir + 'best.pt'
-results_file = 'results.txt'
-
 # Hyperparameters (k-series, 53.3 mAP yolov3-spp-320) https://github.com/ultralytics/yolov3/issues/310
 hyp = {'giou': 3.31,  # giou loss gain
        'cls': 42.4,  # cls loss gain
@@ -420,6 +415,10 @@ if __name__ == '__main__':
     parser.add_argument('--adam', action='store_true', help='use adam optimizer')
     parser.add_argument('--var', type=float, help='debug variable')
     opt = parser.parse_args()
+    wdir = 'weights' + os.sep + opt.name + os.sep  # weights dir
+    last = wdir + 'last.pt'
+    best = wdir + 'best.pt'
+    results_file = 'results.txt'
     opt.weights = last if opt.resume else opt.weights
     print(opt)
     device = torch_utils.select_device(opt.device, apex=mixed_precision)
