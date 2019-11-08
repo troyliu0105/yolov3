@@ -416,6 +416,7 @@ if __name__ == '__main__':
     parser.add_argument('--var', type=float, help='debug variable')
     opt = parser.parse_args()
     wdir = 'weights' + os.sep + opt.name + os.sep  # weights dir
+    os.makedirs(wdir, exist_ok=True)
     last = wdir + 'last.pt'
     best = wdir + 'best.pt'
     results_file = 'results.txt'
