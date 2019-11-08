@@ -370,7 +370,9 @@ def train():
             del chkpt
 
         # end epoch ----------------------------------------------------------------------------------------------------
-
+    with torch.autograd.profiler.profile(use_cuda=True) as prof:
+        _ = model(imgs)
+    print(prof)
     # end training
     if len(opt.name) and not opt.prebias:
         os.rename('results.txt', 'results_%s.txt' % opt.name)
