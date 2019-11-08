@@ -61,7 +61,7 @@ def test(cfg,
     model.eval()
     coco91class = coco80_to_coco91_class()
     s = ('%20s' + '%10s' * 6) % ('Class', 'Images', 'Targets', 'P', 'R', 'mAP', 'F1')
-    p, r, f1, mp, mr, map, mf1 = 0., 0., 0., 0., 0., 0., 0.
+    p, r, f1, mp, mr, map, mf1, clz_acc = 0., 0., 0., 0., 0., 0., 0., 0.
     loss = torch.zeros(3)
     jdict, stats, ap, ap_class = [], [], [], []
     for batch_i, (imgs, targets, paths, shapes) in enumerate(tqdm(dataloader, desc=s)):
@@ -153,6 +153,7 @@ def test(cfg,
     # Compute statistics
     stats = [np.concatenate(x, 0) for x in list(zip(*stats))]  # to numpy
     if len(stats):
+        clz_acc = stats[0].sum() / stats[3].shape[0]
         p, r, ap, f1, ap_class = ap_per_class(*stats)
         mp, mr, map, mf1 = p.mean(), r.mean(), ap.mean(), f1.mean()
         nt = np.bincount(stats[3].astype(np.int64), minlength=nc)  # number of targets per class
@@ -167,6 +168,7 @@ def test(cfg,
     if verbose and nc > 1 and len(stats):
         for i, c in enumerate(ap_class):
             print(pf % (names[c], seen, nt[c], p[i], r[i], ap[i], f1[i]))
+    print(f'clz_acc: {clz_acc}')
 
     # Save JSON
     if save_json and map and len(jdict):
