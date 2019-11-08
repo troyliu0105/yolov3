@@ -229,6 +229,7 @@ def train():
 
         mloss = torch.zeros(4).to(device)  # mean losses
         pbar = tqdm(enumerate(dataloader), total=nb)  # progress bar
+        duration = 0
         for i, (imgs, targets, paths, _) in pbar:  # batch -------------------------------------------------------------
             ni = i + nb * epoch  # number integrated batches (since train start)
             imgs = imgs.to(device)
@@ -264,7 +265,8 @@ def train():
             # Run model
             start = time.time()
             pred = model(imgs)
-            duration = (time.time() - start) / imgs.size(0) * 1000
+            d = (time.time() - start) / imgs.size(0) * 1000
+            duration = d if duration == 0 else duration * 0.95 + d * 0.05
 
             # Compute loss
             loss, loss_items = compute_loss(pred, targets, model)
