@@ -263,9 +263,15 @@ def train():
             #         x['weight_decay'] = hyp['weight_decay'] * g
 
             # Run model
-            start = time.time()
+            torch.cuda.synchronize()
+            start = torch.cuda.Event(enable_timing=True)
+            end = torch.cuda.Event(enable_timing=True)
+            start.record()
             pred = model(imgs)
-            d = (time.time() - start) / imgs.size(0) * 1000
+            torch.cuda.synchronize()
+            end.record()
+            torch.cuda.synchronize()
+            d = start.elapsed_time(end)
             duration = d if duration == 0 else duration * 0.95 + d * 0.05
 
             # Compute loss
