@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from utils.google_utils import *
 from utils.parse_config import *
 from utils.utils import *
+from layers import *
 
 ONNX_EXPORT = False
 
@@ -46,6 +47,10 @@ def create_modules(module_defs, img_size, arc):
                 modules.add_module('MaxPool2d', maxpool)
             else:
                 modules = maxpool
+        elif mdef['type'] == 'antimaxpool':
+            kernel_size = int(mdef['size'])
+            stride = int(mdef['stride'])
+            modules = AntiMaxPool(output_filters[-1], kernel_size, stride)
 
         elif mdef['type'] == 'upsample':
             modules = nn.Upsample(scale_factor=int(mdef['stride']), mode='nearest')
@@ -221,7 +226,7 @@ class Darknet(nn.Module):
 
         for i, (mdef, module) in enumerate(zip(self.module_defs, self.module_list)):
             mtype = mdef['type']
-            if mtype in ['convolutional', 'upsample', 'maxpool']:
+            if mtype in ['convolutional', 'upsample', 'maxpool', 'antimaxpool']:
                 x = module(x)
             elif mtype == 'route':
                 layers = [int(x) for x in mdef['layers'].split(',')]
