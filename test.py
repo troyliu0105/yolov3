@@ -64,6 +64,7 @@ def test(cfg,
     p, r, f1, mp, mr, map, mf1, clz_acc = 0., 0., 0., 0., 0., 0., 0., 0.
     loss = torch.zeros(3)
     jdict, stats, ap, ap_class = [], [], [], []
+    duration = 0
     for batch_i, (imgs, targets, paths, shapes) in enumerate(tqdm(dataloader, desc=s)):
         targets = targets.to(device)
         imgs = imgs.to(device)
@@ -73,9 +74,17 @@ def test(cfg,
         if batch_i == 0 and not os.path.exists('test_batch0.jpg'):
             plot_images(imgs=imgs, targets=targets, paths=paths, fname='test_batch0.jpg')
 
+        torch.cuda.synchronize()
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
         # Run model
         inf_out, train_out = model(imgs)  # inference and training outputs
-
+        torch.cuda.synchronize()
+        end.record()
+        torch.cuda.synchronize()
+        d = start.elapsed_time(end)
+        duration = d if duration == 0 else duration * 0.95 + d * 0.05
         # Compute loss
         if hasattr(model, 'hyp'):  # if model has loss hyperparameters
             loss += compute_loss(train_out, targets, model)[1][:3].cpu()  # GIoU, obj, cls
@@ -168,7 +177,7 @@ def test(cfg,
     if verbose and nc > 1 and len(stats):
         for i, c in enumerate(ap_class):
             print(pf % (names[c], seen, nt[c], p[i], r[i], ap[i], f1[i]))
-    print(f'clz_acc: {clz_acc}')
+    print(f'clz_acc: {clz_acc},\ntims(ms): {duration}')
 
     # Save JSON
     if save_json and map and len(jdict):
