@@ -395,8 +395,7 @@ def prebias():
     # trains output bias layers for 1 epoch and creates new backbone
     if opt.prebias:
         train()  # transfer-learn yolo biases for 1 epoch
-        create_backbone(last)  # saved results as backbone.pt
-        opt.weights = wdir + 'backbone.pt'  # assign backbone
+        opt.weights = create_backbone(last)  # saved results as backbone.pt
         opt.prebias = False  # disable prebias
 
 

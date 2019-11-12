@@ -585,6 +585,7 @@ def strip_optimizer(f='weights/last.pt'):  # from utils.utils import *; strip_op
 
 def create_backbone(f='weights/last.pt'):  # from utils.utils import *; create_backbone()
     # create a backbone from a *.pt file
+    backbone = f'{os.path.split(f)[0]}/backbone.pt'
     x = torch.load(f)
     x['optimizer'] = None
     x['training_results'] = None
@@ -594,7 +595,8 @@ def create_backbone(f='weights/last.pt'):  # from utils.utils import *; create_b
             p.requires_grad = True
         except:
             pass
-    torch.save(x, 'weights/backbone.pt')
+    torch.save(x, backbone)
+    return backbone
 
 
 def coco_class_count(path='../coco/labels/train2014/'):
