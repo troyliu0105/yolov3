@@ -272,6 +272,7 @@ def train():
             end.record()
             torch.cuda.synchronize()
             d = start.elapsed_time(end)
+            d /= imgs.size(0)
             duration = d if duration == 0 else duration * 0.95 + d * 0.05
 
             # Compute loss
