@@ -220,7 +220,7 @@ def test(cfg,
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='test.py')
-    parser.add_argument('--cfg', type=str, default='cfg/yolov3-tiny-light.cfg', help='cfg file path')
+    parser.add_argument('--cfg', type=str, default='cfg/tiny.cfg', help='cfg file path')
     parser.add_argument('--data', type=str, default='data/light.data', help='coco.data file path')
     parser.add_argument('--weights', type=str, default='weights/best.pt', help='path to weights file')
     parser.add_argument('--batch-size', type=int, default=16, help='size of each image batch')

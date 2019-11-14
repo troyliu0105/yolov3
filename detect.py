@@ -150,7 +150,7 @@ def detect(save_txt=False, save_img=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg', type=str, default='cfg/yolov3-tiny-light.cfg', help='cfg file path')
+    parser.add_argument('--cfg', type=str, default='cfg/tiny.cfg', help='cfg file path')
     parser.add_argument('--data', type=str, default='data/light.data', help='coco.data file path')
     parser.add_argument('--weights', type=str, default='weights/best_uFCE0.pt', help='path to weights file')
     parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
