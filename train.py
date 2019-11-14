@@ -1,6 +1,7 @@
 import argparse
 import time
 
+import torch
 import torch.distributed as dist
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
@@ -23,10 +24,10 @@ hyp = {'giou': 3.31,  # giou loss gain
        'obj': 40.0,  # obj loss gain
        'obj_pw': 1.0,  # obj BCELoss positive_weight
        'iou_t': 0.213,  # iou training threshold
-       'lr0': 0.00261,  # initial learning rate (SGD=1E-3, Adam=9E-5)
+       'lr0': 0.000161,  # initial learning rate (SGD=1E-3, Adam=9E-5)
        'lrf': -4.,  # final LambdaLR learning rate = lr0 * (10 ** lrf)
        'momentum': 0.949,  # SGD momentum
-       'weight_decay': 0.000489,  # optimizer weight decay
+       'weight_decay': 0.000189,  # optimizer weight decay
        'fl_gamma': 0.5,  # focal loss gamma
        'hsv_h': 0.0103,  # image HSV-Hue augmentation (fraction)
        'hsv_s': 0.691,  # image HSV-Saturation augmentation (fraction)
@@ -43,6 +44,7 @@ if f:
         hyp[k] = v
 
 
+# noinspection PyArgumentList,PyUnresolvedReferences,DuplicatedCode
 def train():
     cfg = opt.cfg
     data = opt.data
@@ -263,15 +265,22 @@ def train():
             #         x['weight_decay'] = hyp['weight_decay'] * g
 
             # Run model
-            torch.cuda.synchronize()
-            start = torch.cuda.Event(enable_timing=True)
-            end = torch.cuda.Event(enable_timing=True)
-            start.record()
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+                start = torch.cuda.Event(enable_timing=True)
+                end = torch.cuda.Event(enable_timing=True)
+                start.record()
+            else:
+                start = time.time()
             pred = model(imgs)
-            torch.cuda.synchronize()
-            end.record()
-            torch.cuda.synchronize()
-            d = start.elapsed_time(end)
+            if torch.cuda.is_available():
+                torch.cuda.synchronize()
+                # noinspection PyUnboundLocalVariable
+                end.record()
+                torch.cuda.synchronize()
+                d = start.elapsed_time(end)
+            else:
+                d = (time.time() - start) * 1000
             d /= imgs.size(0)
             duration = d if duration == 0 else duration * 0.95 + d * 0.05
 

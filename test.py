@@ -8,6 +8,7 @@ from utils.datasets import *
 from utils.utils import *
 
 
+# noinspection DuplicatedCode
 def test(cfg,
          data,
          weights=None,
@@ -74,16 +75,23 @@ def test(cfg,
         if batch_i == 0 and not os.path.exists('test_batch0.jpg'):
             plot_images(imgs=imgs, targets=targets, paths=paths, fname='test_batch0.jpg')
 
-        torch.cuda.synchronize()
-        start = torch.cuda.Event(enable_timing=True)
-        end = torch.cuda.Event(enable_timing=True)
-        start.record()
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+            start = torch.cuda.Event(enable_timing=True)
+            end = torch.cuda.Event(enable_timing=True)
+            start.record()
+        else:
+            start = time.time()
         # Run model
         inf_out, train_out = model(imgs)  # inference and training outputs
-        torch.cuda.synchronize()
-        end.record()
-        torch.cuda.synchronize()
-        d = start.elapsed_time(end)
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+            # noinspection PyUnboundLocalVariable
+            end.record()
+            torch.cuda.synchronize()
+            d = start.elapsed_time(end)
+        else:
+            d = (time.time() - start) * 1000
         d /= imgs.size(0)
         duration = d if duration == 0 else duration * 0.95 + d * 0.05
         # Compute loss

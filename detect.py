@@ -78,9 +78,7 @@ def detect(save_txt=False, save_img=False):
         img = torch.from_numpy(img).to(device)
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
-        start = time.time()
         pred = model(img)[0]
-        duration = (time.time() - start) * 1000
 
         if opt.half:
             pred = pred.float()
@@ -120,7 +118,7 @@ def detect(save_txt=False, save_img=False):
                         label = '%s %.2f' % (classes[int(cls)], conf)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)])
 
-            print('%sDone. (%.3fs, forward: %.2fms)' % (s, time.time() - t, duration))
+            print('%sDone. (%.3fs)' % (s, time.time() - t))
 
             # Stream results
             if view_img:
