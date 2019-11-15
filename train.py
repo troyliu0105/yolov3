@@ -63,10 +63,14 @@ def train():
     multi_scale = opt.multi_scale
 
     if multi_scale:
-        img_sz_min = round(img_size / 32 / 1.5) + 1
-        img_sz_max = round(img_size / 32 * 1.5) - 1
-        img_size = img_sz_max * 32  # initiate with maximum multi_scale size
-        print('Using multi-scale %g - %g' % (img_sz_min * 32, img_size))
+        # img_sz_min = round(img_size / 32 / 1.5) + 1
+        # img_sz_max = round(img_size / 32 * 1.5) - 1
+        # img_size = img_sz_max * 32  # initiate with maximum multi_scale size
+        # max stride == 16, 2 detection layers
+        img_sz_min = img_size - 16 * 2
+        img_sz_max = img_size + 16 * 2
+        img_size = img_sz_max
+        print('Using multi-scale %g - %g' % (img_sz_min, img_size))
 
     # Configure run
     data_dict = parse_data_cfg(data)
@@ -240,7 +244,7 @@ def train():
             # Multi-Scale training
             if multi_scale:
                 if ni / accumulate % 10 == 0:  #  adjust (67% - 150%) every 10 batches
-                    img_size = random.randrange(img_sz_min, img_sz_max + 1) * 32
+                    img_size = random.choice(range(img_sz_min, img_sz_max + 1, 16))
                 sf = img_size / max(imgs.shape[2:])  # scale factor
                 if sf != 1:
                     ns = [math.ceil(x * sf / 32.) * 32 for x in imgs.shape[2:]]  # new shape (stretched to 32-multiple)
