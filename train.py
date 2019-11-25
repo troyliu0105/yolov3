@@ -18,24 +18,44 @@ except ImportError:
     mixed_precision = False  # not installed
 
 # Hyperparameters (k-series, 53.3 mAP yolov3-spp-320) https://github.com/ultralytics/yolov3/issues/310
-hyp = {'giou': 2.74,  # giou loss gain
-       'cls': 60.4,  # cls loss gain
+hyp = {'giou': 3.31,  # giou loss gain
+       'cls': 42.4,  # cls loss gain
        'cls_pw': 1.0,  # cls BCELoss positive_weight
-       'obj': 40.3,  # obj loss gain
+       'obj': 52.0,  # obj loss gain (*=img_size/320 if img_size != 320)
        'obj_pw': 1.0,  # obj BCELoss positive_weight
-       'iou_t': 0.269,  # iou training threshold
-       'lr0': 0.000283,  # initial learning rate (SGD=1E-3, Adam=9E-5)
+       'iou_t': 0.213,  # iou training threshold
+       'lr0': 0.000161,  # initial learning rate (SGD=1E-3, Adam=9E-5)
        'lrf': -4.,  # final LambdaLR learning rate = lr0 * (10 ** lrf)
-       'momentum': 0.98,  # SGD momentum
-       'weight_decay': 0.0000289,  # optimizer weight decay
-       'fl_gamma': 0.576,  # focal loss gamma
-       'hsv_h': 0.0204,  # image HSV-Hue augmentation (fraction)
-       'hsv_s': 0.735,  # image HSV-Saturation augmentation (fraction)
-       'hsv_v': 0.582,  # image HSV-Value augmentation (fraction)
-       'degrees': 2.3,  # image rotation (+/- deg)
-       'translate': 0.0447,  # image translation (+/- fraction)
-       'scale': 0.149,  # image scale (+/- gain)
-       'shear': 0.0412}  # image shear (+/- deg)
+       'momentum': 0.949,  # SGD momentum
+       'weight_decay': 0.000189,  # optimizer weight decay
+       'fl_gamma': 0.5,  # focal loss gamma
+       'hsv_h': 0.0103,  # image HSV-Hue augmentation (fraction)
+       'hsv_s': 0.691,  # image HSV-Saturation augmentation (fraction)
+       'hsv_v': 0.433,  # image HSV-Value augmentation (fraction)
+       'degrees': 1.43,  # image rotation (+/- deg)
+       'translate': 0.0663,  # image translation (+/- fraction)
+       'scale': 0.11,  # image scale (+/- gain)
+       'shear': 0.384}  # image shear (+/- deg)
+
+# 新的超参数
+# hyp = {'giou': 2.74,  # giou loss gain
+#        'cls': 60.4,  # cls loss gain
+#        'cls_pw': 1.0,  # cls BCELoss positive_weight
+#        'obj': 40.3,  # obj loss gain
+#        'obj_pw': 1.0,  # obj BCELoss positive_weight
+#        'iou_t': 0.269,  # iou training threshold
+#        'lr0': 0.000283,  # initial learning rate (SGD=1E-3, Adam=9E-5)
+#        'lrf': -4.,  # final LambdaLR learning rate = lr0 * (10 ** lrf)
+#        'momentum': 0.98,  # SGD momentum
+#        'weight_decay': 0.0000289,  # optimizer weight decay
+#        'fl_gamma': 0.576,  # focal loss gamma
+#        'hsv_h': 0.0204,  # image HSV-Hue augmentation (fraction)
+#        'hsv_s': 0.735,  # image HSV-Saturation augmentation (fraction)
+#        'hsv_v': 0.582,  # image HSV-Value augmentation (fraction)
+#        'degrees': 2.3,  # image rotation (+/- deg)
+#        'translate': 0.0447,  # image translation (+/- fraction)
+#        'scale': 0.149,  # image scale (+/- gain)
+#        'shear': 0.0412}  # image shear (+/- deg)
 
 # Overwrite hyp with hyp*.txt (optional)
 f = glob.glob('hyp*.txt')
