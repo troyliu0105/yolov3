@@ -78,7 +78,7 @@ def detect(save_txt=False, save_img=False):
         img = torch.from_numpy(img).to(device)
         if img.ndimension() == 3:
             img = img.unsqueeze(0)
-        pred = model(img)[0]
+        pred = model(img[:, :, :192, :])[0]
 
         if opt.half:
             pred = pred.float()

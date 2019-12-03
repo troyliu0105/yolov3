@@ -73,7 +73,7 @@ def test(cfg,
 
         # Plot images with bounding boxes
         if batch_i == 0 and not os.path.exists('test_batch0.jpg'):
-            plot_images(imgs=imgs, targets=targets, paths=paths, fname='test_batch0.jpg')
+            plot_images(imgs=imgs / 255, targets=targets, paths=paths, fname='test_batch0.jpg')
 
         if torch.cuda.is_available():
             torch.cuda.synchronize()
