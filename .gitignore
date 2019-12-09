@@ -15,7 +15,7 @@
 *.data
 *.json
 
-*.cfg
+#*.cfg
 !cfg/yolov3*.cfg
 
 runs/*
