@@ -186,7 +186,7 @@ def test(cfg,
     if verbose and nc > 1 and len(stats):
         for i, c in enumerate(ap_class):
             print(pf % (names[c], seen, nt[c], p[i], r[i], ap[i], f1[i]))
-    print(f'clz_acc: {clz_acc},\ntims(ms): {duration}')
+    # print(f'clz_acc: {clz_acc},\ntims(ms): {duration}')
 
     # Save JSON
     if save_json and map and len(jdict):

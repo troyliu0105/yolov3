@@ -1,9 +1,9 @@
 import torch.nn.functional as F
 
+from layers import *
 from utils.google_utils import *
 from utils.parse_config import *
 from utils.utils import *
-from layers import *
 
 ONNX_EXPORT = False
 
@@ -20,17 +20,20 @@ def create_modules(module_defs, img_size, arc):
     for i, mdef in enumerate(module_defs):
         modules = nn.Sequential()
 
+        print(f'Creating {i}: {mdef["type"]}')
         if mdef['type'] == 'convolutional':
             bn = int(mdef['batch_normalize'])
             filters = int(mdef['filters'])
             kernel_size = int(mdef['size'])
+            depthwise = 'depthwise' in mdef and int(mdef['depthwise']) == 1
             pad = (kernel_size - 1) // 2 if int(mdef['pad']) else 0
             modules.add_module('Conv2d', nn.Conv2d(in_channels=output_filters[-1],
                                                    out_channels=filters,
                                                    kernel_size=kernel_size,
                                                    stride=int(mdef['stride']),
                                                    padding=pad,
-                                                   bias=not bn))
+                                                   bias=not bn,
+                                                   groups=filters if depthwise else 1))
             if bn:
                 modules.add_module('BatchNorm2d', nn.BatchNorm2d(filters, momentum=0.1))
             if mdef['activation'] == 'leaky':  # TODO: activation study https://github.com/ultralytics/yolov3/issues/441
@@ -122,7 +125,7 @@ def create_modules(module_defs, img_size, arc):
         module_list.append(modules)
         output_filters.append(filters)
 
-    return module_list, routs
+    return module_list, routs, hyperparams
 
 
 class Swish(nn.Module):
@@ -219,8 +222,14 @@ class Darknet(nn.Module):
     def __init__(self, cfg, img_size=(416, 416), arc='default'):
         super(Darknet, self).__init__()
 
-        self.module_defs = parse_model_cfg(cfg)
-        self.module_list, self.routs = create_modules(self.module_defs, img_size, arc)
+        if isinstance(cfg, str):
+            self.module_defs = parse_model_cfg(cfg)
+        elif isinstance(cfg, list):
+            self.module_defs = cfg
+        # 使用 cfg 中的 h、w 定义
+        h = self.module_defs[0]['height']
+        w = self.module_defs[0]['width']
+        self.module_list, self.routs, self.hyperparams = create_modules(self.module_defs, (w, h), arc)
         self.yolo_layers = get_yolo_layers(self)
 
         # Darknet Header https://github.com/AlexeyAB/darknet/issues/2914#issuecomment-496675346
@@ -253,6 +262,8 @@ class Darknet(nn.Module):
                 x = module(x, img_size)
                 output.append(x)
             layer_outputs.append(x if i in self.routs else [])
+            # if mtype != 'yolo':
+            #     print(f'{i}: {mtype} => {x.shape}')
 
         if self.training:
             return output

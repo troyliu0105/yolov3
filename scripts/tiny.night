@@ -1,0 +1,47 @@
+module_list.0.Conv2d conv0 CONV
+module_list.0.BatchNorm2d conv0/bn BN
+module_list.0.BatchNorm2d conv0/scale SCALE
+
+module_list.2.Conv2d conv1 CONV
+module_list.2.BatchNorm2d conv1/bn BN
+module_list.2.BatchNorm2d conv1/scale SCALE
+    
+module_list.4.Conv2d conv2 CONV
+module_list.4.BatchNorm2d conv2/bn BN
+module_list.4.BatchNorm2d conv2/scale SCALE
+    
+module_list.6.Conv2d conv3 CONV
+module_list.6.BatchNorm2d conv3/bn BN
+module_list.6.BatchNorm2d conv3/scale SCALE
+    
+module_list.8.Conv2d conv4 CONV
+module_list.8.BatchNorm2d conv4/bn BN
+module_list.8.BatchNorm2d conv4/scale SCALE
+    
+module_list.9.Conv2d conv5 CONV
+module_list.9.BatchNorm2d conv5/bn BN
+module_list.9.BatchNorm2d conv5/scale SCALE
+    
+module_list.10.Conv2d conv6 CONV
+module_list.10.BatchNorm2d conv6/bn BN
+module_list.10.BatchNorm2d conv6/scale SCALE
+    
+module_list.11.Conv2d conv7 CONV
+module_list.11.BatchNorm2d conv7/bn BN
+module_list.11.BatchNorm2d conv7/scale SCALE
+    
+module_list.12.Conv2d conv8 CONV
+module_list.12.BatchNorm2d conv8/bn BN
+module_list.12.BatchNorm2d conv8/scale SCALE
+    
+module_list.13.Conv2d yolo_out_m CONV
+    
+module_list.16.Conv2d conv9 CONV
+module_list.16.BatchNorm2d conv9/bn BN
+module_list.16.BatchNorm2d conv9/scale SCALE
+    
+module_list.19.Conv2d conv10 CONV
+module_list.19.BatchNorm2d conv10/bn BN
+module_list.19.BatchNorm2d conv10/scale SCALE
+    
+module_list.20.Conv2d yolo_out_s CONV

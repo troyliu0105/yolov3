@@ -1,0 +1,26 @@
+
+
+features.0 data/bn BN
+features.0 data/scale SCALE
+
+features.1 conv0 CONV
+features.2 conv0/bn BN
+features.2 conv0/scale SCALE
+
+features.4 conv1 CONV
+features.5 conv1/bn BN
+features.5 conv1/scale SCALE
+
+features.7 conv2 CONV
+features.8 conv2/bn BN
+features.8 conv2/scale SCALE
+
+features.10 conv3 CONV
+features.11 conv3/bn BN
+features.11 conv3/scale SCALE
+
+features.13 conv4 CONV
+features.14 conv4/bn BN
+features.14 conv4/scale SCALE
+
+classifier classifier FC
