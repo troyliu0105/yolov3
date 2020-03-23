@@ -1,7 +1,5 @@
 import argparse
-import time
 
-import torch
 import torch.distributed as dist
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
@@ -29,13 +27,14 @@ hyp = {'giou': 3.31,  # giou loss gain
        'momentum': 0.949,  # SGD momentum
        'weight_decay': 0.000189,  # optimizer weight decay
        'fl_gamma': 0.5,  # focal loss gamma
-       'hsv_h': 0.0103,  # image HSV-Hue augmentation (fraction)
-       'hsv_s': 0.691,  # image HSV-Saturation augmentation (fraction)
-       'hsv_v': 0.433,  # image HSV-Value augmentation (fraction)
+       'hsv_h': 0.0,  # image HSV-Hue augmentation (fraction)
+       'hsv_s': 0.0,  # image HSV-Saturation augmentation (fraction)
+       'hsv_v': 0.5,  # image HSV-Value augmentation (fraction)
        'degrees': 1.43,  # image rotation (+/- deg)
        'translate': 0.0663,  # image translation (+/- fraction)
        'scale': 0.11,  # image scale (+/- gain)
-       'shear': 0.384}  # image shear (+/- deg)
+       'shear': 0.384
+       }  # image shear (+/- deg)
 
 # 新的超参数
 # hyp = {'giou': 2.74,  # giou loss gain
@@ -199,7 +198,8 @@ def train():
     # Initialize distributed training
     if torch.cuda.device_count() > 1:
         dist.init_process_group(backend='nccl',  # 'distributed backend'
-                                init_method='tcp://127.0.0.1:9999',  # distributed training init method
+                                init_method=f'tcp://127.0.0.1:{np.random.choice(65536)}',
+                                # distributed training init method
                                 world_size=1,  # number of nodes for distributed training
                                 rank=0)  # distributed training node rank
         model = torch.nn.parallel.DistributedDataParallel(model)
@@ -451,7 +451,7 @@ if __name__ == '__main__':
     parser.add_argument('--img-weights', action='store_true', help='select training images by weight')
     parser.add_argument('--cache-images', action='store_true', help='cache images for faster training')
     parser.add_argument('--weights', type=str, default='', help='initial weights')  # i.e. weights/darknet.53.conv.74
-    parser.add_argument('--arc', type=str, default='uCE', help='yolo architecture')  # defaultpw, uCE, uBCE
+    parser.add_argument('--arc', type=str, default='uCE', help='yolo architecture')  # defaultpw, uCE, uBCE, suFCE
     parser.add_argument('--prebias', action='store_true', help='transfer-learn yolo biases prior to training')
     parser.add_argument('--name', default='', help='renames results.txt to results_name.txt if supplied')
     parser.add_argument('--device', default='', help='device id (i.e. 0 or 0,1) or cpu')

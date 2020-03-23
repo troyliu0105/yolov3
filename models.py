@@ -21,19 +21,39 @@ def create_modules(module_defs, img_size, arc):
         modules = nn.Sequential()
 
         print(f'Creating {i}: {mdef["type"]}')
-        if mdef['type'] == 'convolutional':
+        if mdef['type'] == 'convolutional' or mdef['type'] == 'deconvolutional':
+            is_deconv = mdef['type'] == 'deconvolutional'
             bn = int(mdef['batch_normalize'])
             filters = int(mdef['filters'])
-            kernel_size = int(mdef['size'])
+            if "," in mdef['size']:
+                kernel_size = [int(k) for k in mdef['size'].replace(' ', '').split(',')]
+                if int(mdef['pad']):
+                    pad = [(k - 1) // 2 for k in kernel_size]
+                else:
+                    pad = 0
+            else:
+                kernel_size = int(mdef['size'])
+                pad = (kernel_size - 1) // 2 if int(mdef['pad']) else 0
+
+            # if "," in int(mdef['stride']):
+            #     stride = [int(k) for k in mdef['stride'].replace(' ', '').split(',')]
             depthwise = 'depthwise' in mdef and int(mdef['depthwise']) == 1
-            pad = (kernel_size - 1) // 2 if int(mdef['pad']) else 0
-            modules.add_module('Conv2d', nn.Conv2d(in_channels=output_filters[-1],
-                                                   out_channels=filters,
-                                                   kernel_size=kernel_size,
-                                                   stride=int(mdef['stride']),
-                                                   padding=pad,
-                                                   bias=not bn,
-                                                   groups=filters if depthwise else 1))
+            if not is_deconv:
+                modules.add_module('Conv2d', nn.Conv2d(in_channels=output_filters[-1],
+                                                       out_channels=filters,
+                                                       kernel_size=kernel_size,
+                                                       stride=int(mdef['stride']),
+                                                       padding=pad,
+                                                       bias=not bn,
+                                                       groups=filters if depthwise else 1))
+            else:
+                modules.add_module('Deconv2d', nn.ConvTranspose2d(in_channels=output_filters[-1],
+                                                                  out_channels=filters,
+                                                                  kernel_size=kernel_size,
+                                                                  stride=int(mdef['stride']),
+                                                                  padding=pad,
+                                                                  bias=not bn,
+                                                                  groups=filters if depthwise else 1))
             if bn:
                 modules.add_module('BatchNorm2d', nn.BatchNorm2d(filters, momentum=0.1))
             if mdef['activation'] == 'leaky':  # TODO: activation study https://github.com/ultralytics/yolov3/issues/441
@@ -199,8 +219,10 @@ class YOLOLayer(nn.Module):
             io[..., 2:4] = torch.exp(io[..., 2:4]) * self.anchor_wh  # wh yolo method
             # io[..., 2:4] = ((torch.sigmoid(io[..., 2:4]) * 2) ** 3) * self.anchor_wh  # wh power method
             io[..., :4] *= self.stride
-
-            if 'default' in self.arc:  # seperate obj and cls
+            if 'fast' in self.arc:
+                io[..., 4:] = io[..., 4:] - io[..., 4:].min(-1, keepdims=True)[0]
+                io[..., 4:] /= io[..., 4:].sum(-1, keepdims=True)
+            elif 'default' in self.arc:  # seperate obj and cls
                 torch.sigmoid_(io[..., 4:])
             elif 'BCE' in self.arc:  # unified BCE (80 classes)
                 torch.sigmoid_(io[..., 5:])

@@ -322,6 +322,9 @@ def compute_loss(p, targets, model):  # predictions, targets, model
     if 'F' in arc:  # add focal loss
         g = h['fl_gamma']
         BCEcls, BCEobj, BCE, CE = FocalLoss(BCEcls, g), FocalLoss(BCEobj, g), FocalLoss(BCE, g), FocalLoss(CE, g)
+    elif 'fast' == arc:
+        g = h['fl_gamma']
+        CE = FocalLoss(nn.NLLLoss(), g)
 
     # Compute losses
     for i, pi in enumerate(p):  # layer index, layer predictions
@@ -355,8 +358,16 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             # Append targets to text file
             # with open('targets.txt', 'a') as file:
             #     [file.write('%11.5g ' * 4 % tuple(x) + '\n') for x in torch.cat((txy[i], twh[i]), 1)]
+        if 'fast' == arc:
+            t = torch.zeros_like(pi[..., 0], dtype=torch.long)  # targets
+            if nb:
+                t[b, a, gj, gi] = tcls[i] + 1
+            clz = p[..., 4:].view(-1, model.nc + 1)
+            clz = clz[-1] - clz.min(-1, keepdims=True)
+            clz /= clz.sum(-1, keepdims=True)
+            lcls += CE(clz, t.view(-1))
 
-        if 'default' in arc:  # separate obj and cls
+        elif 'default' in arc:  # separate obj and cls
             lobj += BCEobj(pi[..., 4], tobj)  # obj loss
 
         elif 'BCE' in arc:  # unified BCE (80 classes)

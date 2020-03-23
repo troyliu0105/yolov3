@@ -72,13 +72,13 @@ def convert(torch_param_name,
 
 if __name__ == '__main__':
     # prototxt = '/Users/troy/Projects/Clion/caffe-lightning/models/light/tiny.ng.deploy.prototxt'
-    prototxt = '/Users/troy/Projects/Clion/caffe-lightning/models/light/squeezenet.v11.ss.prototxt'
+    prototxt = '/Users/troy/Projects/Clion/caffe-lightning/models/light/squeeze/squeezenet.v11.ss.activate.uppool.prototxt'
     save_path = os.path.splitext(prototxt)[0] + '.caffemodel'
     net = caffe.Net(prototxt, caffe.TEST)
     time.sleep(1)
     # weights = 'weights/best_relu.pt'
     # weights = 'weights/best.pt'
-    weights = '/Users/troy/Projects/Works/YOLOv3-Ultralytics/weights/r-640-origin-sq-backbone.ss.pt'
+    weights = '/Users/troy/Projects/Clion/caffe-lightning/weights/best.pt'
     weights = torch.load(weights, map_location='cpu')['model']
     # weights = torch.load(weights, map_location='cpu')
     cfg = 'scripts/squeeze.ss'
